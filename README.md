@@ -8,4 +8,4 @@
 
 - [ ] add gameplay stuf
 
-- [ ] fix some stupid stuf of mr
+- [ ] fix some stupid stuf of me
