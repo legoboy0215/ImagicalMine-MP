@@ -1,79 +1,91 @@
 <?php
+/**
+ * src/pocketmine/entity/Spider.php
+ *
+ * @package default
+ */
+
 
 /*
  *
- *  _____   _____   __   _   _   _____  __    __  _____
- * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
- * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
- * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
- * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
- * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
+ *  _                       _           _ __  __ _
+ * (_)                     (_)         | |  \/  (_)
+ *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
+ * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
+ * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
+ * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
+ *                     __/ |
+ *                    |___/
  *
- * This program is free software: you can redistribute it and/or modify
+ * This program is a third party build by ImagicalMine.
+ *
+ * PocketMine is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author iTX Technologies
- * @link https://itxtech.org
+ * @author ImagicalMine Team
+ * @link http://forums.imagicalcorp.ml/
  *
- */
+ *
+*/
 
 namespace pocketmine\entity;
 
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\item\Item as ItemItem;
-use pocketmine\network\protocol\AddEntityPacket;
+use pocketmine\item\Item as drp;
 use pocketmine\Player;
 
-class Spider extends Monster{
-	const NETWORK_ID = 35;
-	public $width = 0.3;
-	public $length = 0.9;
-	public $height = 1.9;
+class Spider extends Monster
+{
+    const NETWORK_ID = 35;
 
-	public $dropExp = [5, 5];
-	
-	public function getName() : string{
-		return "Spider";
-	}
+    public $width = 2.062;
+    public $length = 1.703;
+    public $height = 0.781;
 
-	public function spawnTo(Player $player){
-		$pk = new AddEntityPacket();
-		$pk->eid = $this->getId();
-		$pk->type = Spider::NETWORK_ID;
-		$pk->x = $this->x;
-		$pk->y = $this->y;
-		$pk->z = $this->z;
-		$pk->speedX = $this->motionX;
-		$pk->speedY = $this->motionY;
-		$pk->speedZ = $this->motionZ;
-		$pk->yaw = $this->yaw;
-		$pk->pitch = $this->pitch;
-		$pk->metadata = $this->dataProperties;
-		$player->dataPacket($pk);
+    /**
+     *
+     */
+    public function initEntity()
+    {
+        $this->setMaxHealth(16);
+        parent::initEntity();
+    }
 
 
-		parent::spawnTo($player);
-	}
-	
-	public function getDrops(){
-		$drops = array(ItemItem::get(ItemItem::STRING, 0, 1));
-		if ($this->lastDamageCause instanceof EntityDamageByEntityEvent and $this->lastDamageCause->getEntity() instanceof Player) {
-			if (mt_rand(0, 199) < 5) {
-				switch (mt_rand(0, 2)) {
-					case 0:
-						$drops[] = ItemItem::get(ItemItem::IRON_INGOT, 0, 1);
-						break;
-					case 1:
-						$drops[] = ItemItem::get(ItemItem::CARROT, 0, 1);
-						break;
-					case 2:
-						$drops[] = ItemItem::get(ItemItem::POTATO, 0, 1);
-						break;
-				}
-			}
-		}
-		return $drops;
-	}
+    /**
+     *
+     * @return unknown
+     */
+    public function getName()
+    {
+        return "Spider";
+    }
+
+
+    /**
+     *
+     * @param Player  $player
+     */
+    public function spawnTo(Player $player)
+    {
+        $pk = $this->addEntityDataPacket($player);
+        $pk->type = Spider::NETWORK_ID;
+
+        $player->dataPacket($pk);
+        parent::spawnTo($player);
+    }
+
+
+    /**
+     *
+     * @return unknown
+     */
+    public function getDrops()
+    {
+        return[
+            drp::get(drp::STRING, 0, mt_rand(0, 2)),
+            drp::get(drp::SPIDER_EYE, 0, mt_rand(0, 1))
+        ];
+    }
 }
