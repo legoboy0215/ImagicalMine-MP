@@ -1,183 +1,129 @@
 <?php
-/**
- * src/pocketmine/block/Cake.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ * 
  *
 */
 
 namespace pocketmine\block;
 
+use pocketmine\entity\Effect;
+use pocketmine\event\entity\EntityEatBlockEvent;
+use pocketmine\item\FoodSource;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\Player;
 
-class Cake extends Transparent
-{
+class Cake extends Transparent implements FoodSource{
 
-    protected $id = self::CAKE_BLOCK;
+	protected $id = self::CAKE_BLOCK;
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
+	public function canBeActivated() : bool{
+		return true;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
+	public function getHardness(){
+		return 0.5;
+	}
 
+	public function getName() : string{
+		return "Cake Block";
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 0.5;
-    }
+	protected function recalculateBoundingBox(){
 
+		$f = (1 + $this->getDamage() * 2) / 16;
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Cake Block";
-    }
+		return new AxisAlignedBB(
+			$this->x + $f,
+			$this->y,
+			$this->z + 0.0625,
+			$this->x + 1 - 0.0625,
+			$this->y + 0.5,
+			$this->z + 1 - 0.0625
+		);
+	}
 
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+		$down = $this->getSide(0);
+		if($down->getId() !== self::AIR){
+			$this->getLevel()->setBlock($block, $this, true, true);
 
-    /**
-     *
-     * @return unknown
-     */
-    protected function recalculateBoundingBox()
-    {
-        $f = (1 + $this->getDamage() * 2) / 16;
+			return true;
+		}
 
-        return new AxisAlignedBB(
-            $this->x + $f,
-            $this->y,
-            $this->z + 0.0625,
-            $this->x + 1 - 0.0625,
-            $this->y + 0.5,
-            $this->z + 1 - 0.0625
-        );
-    }
+		return false;
+	}
 
+	public function onUpdate($type){
+		if($type === Level::BLOCK_UPDATE_NORMAL){
+			if($this->getSide(0)->getId() === self::AIR){ //Replace with common break method
+				$this->getLevel()->setBlock($this, new Air(), true);
 
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        $down = $this->getSide(0);
-        if ($down->getId() !== self::AIR) {
-            $this->getLevel()->setBlock($block, $this, true, true);
+				return Level::BLOCK_UPDATE_NORMAL;
+			}
+		}
 
-            return true;
-        }
+		return false;
+	}
 
-        return false;
-    }
+	public function getDrops(Item $item) : array{
+		return [];
+	}
 
+	public function onActivate(Item $item, Player $player = null){
+		if($player instanceof Player and $player->getHealth() < $player->getMaxHealth()){
+			$ev = new EntityEatBlockEvent($player, $this);
 
-    /**
-     *
-     * @param unknown $type
-     * @return unknown
-     */
-    public function onUpdate($type)
-    {
-        if ($type === Level::BLOCK_UPDATE_NORMAL) {
-            if ($this->getSide(0)->getId() === self::AIR) { //Replace with common break method
-                $this->getLevel()->setBlock($this, new Air(), true);
+			if(!$ev->isCancelled()){
+				$this->getLevel()->setBlock($this, $ev->getResidue());
+				return true;
+			}
+		}
 
-                return Level::BLOCK_UPDATE_NORMAL;
-            }
-        }
+		return false;
+	}
 
-        return false;
-    }
+	public function getFoodRestore() : int{
+		return 2;
+	}
 
+	public function getSaturationRestore() : float{
+		return 0.4;
+	}
 
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        return [];
-    }
+	public function getResidue(){
+		$clone = clone $this;
+		$clone->meta++;
+		if($clone->meta >= 0x06){
+			$clone = new Air();
+		}
+		return $clone;
+	}
 
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        if ($player instanceof Player and $player->getFood() < 20) {
-            ++$this->meta;
-
-            $player->setFood($player->getFood() + 2);
-
-            if ($this->meta >= 0x06) {
-                $this->getLevel()->setBlock($this, new Air(), true);
-            } else {
-                $this->getLevel()->setBlock($this, $this, true);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
+	/**
+	 * @return Effect[]
+	 */
+	public function getAdditionalEffects() : array{
+		return [];
+	}
 }

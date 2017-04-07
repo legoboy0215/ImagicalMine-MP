@@ -1,32 +1,21 @@
 <?php
-/**
- * src/pocketmine/block/BrownMushroom.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ * 
  *
 */
 
@@ -36,91 +25,47 @@ use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\Player;
 
-class BrownMushroom extends Flowable
-{
+class BrownMushroom extends Flowable{
 
-    protected $id = self::BROWN_MUSHROOM;
+	protected $id = self::BROWN_MUSHROOM;
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
+	public function getName() : string{
+		return "Brown Mushroom";
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Brown Mushroom";
-    }
+	public function getLightLevel(){
+		return 1;
+	}
 
+	public function onUpdate($type){
+		if($type === Level::BLOCK_UPDATE_NORMAL){
+			if($this->getSide(0)->isTransparent() === true){
+				$this->getLevel()->useBreakOn($this);
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getLightLevel()
-    {
-        return 1;
-    }
+				return Level::BLOCK_UPDATE_NORMAL;
+			}
+		}
 
+		return false;
+	}
 
-    /**
-     *
-     * @param unknown $type
-     * @return unknown
-     */
-    public function onUpdate($type)
-    {
-        if ($type === Level::BLOCK_UPDATE_NORMAL) {
-            if ($this->getSide(0)->isTransparent() === true or $this->getSide(0)->isSolid() === false) {
-                $this->getLevel()->useBreakOn($this);
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+		$down = $this->getSide(0);
+		if($down->isTransparent() === false){
+			$this->getLevel()->setBlock($block, $this, true, true);
 
-                return Level::BLOCK_UPDATE_NORMAL;
-            }
-        }
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
+	public function getBoundingBox(){
+		return null;
+	}
 
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        $down = $this->getSide(0);
-        if ($down->isTransparent() === false) {
-            $this->getLevel()->setBlock($block, $this, true, true);
-
-            return true;
-        }
-
-        return false;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getBoundingBox()
-    {
-        return null;
-    }
 }
