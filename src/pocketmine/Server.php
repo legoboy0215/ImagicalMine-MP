@@ -159,7 +159,7 @@ use pocketmine\tile\Tile;
 use pocketmine\tile\TrappedChest;
 use pocketmine\utils\Binary;
 use pocketmine\utils\Config;
-use pocketmine\utils\LevelException;
+//use pocketmine\utils\LevelException;
 use pocketmine\utils\MainLogger;
 use pocketmine\utils\Terminal;
 use pocketmine\utils\TextFormat;
