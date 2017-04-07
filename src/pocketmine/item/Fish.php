@@ -1,31 +1,20 @@
 <?php
-/**
- * src/pocketmine/item/Fish.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  *
  *
 */
@@ -34,53 +23,58 @@ namespace pocketmine\item;
 
 use pocketmine\entity\Effect;
 
-class Fish extends Food
-{
-    const NORMAL = 0;
-    const SALMON = 1;
-    const CLOWNFISH = 2;
-    const PUFFERFISH = 3;
+class Fish extends Food{
+	
+	//Wrong! All wrong! TODO: Fix
+	
+	const FISH_FISH = 0;
+	const FISH_SALMON = 1;
+	const FISH_CLOWNFISH = 2;
+	const FISH_PUFFERFISH = 3;
 
+	public function __construct($meta = 0, $count = 1){
+		$name = "Raw Fish";
+		if($this->meta === self::FISH_SALMON){
+			$name = "Raw Salmon";
+		}elseif($this->meta === self::FISH_CLOWNFISH){
+			$name = "Clownfish";
+		}elseif($this->meta === self::FISH_PUFFERFISH){
+			$name = "Pufferfish";
+		}
+		parent::__construct(self::RAW_FISH, $meta, $count, $name);
+	}
 
-    /**
-     *
-     * @param unknown $meta  (optional)
-     * @param unknown $count (optional)
-     */
-    public function __construct($meta = 0, $count = 1)
-    {
-        parent::__construct(self::RAW_FISH, $meta, $count, $this->getNameByMeta($meta));
-    }
+	public function getFoodRestore() : int{
+		if($this->meta === self::FISH_FISH){
+			return 2;
+		}elseif($this->meta === self::FISH_SALMON){
+			return 2;
+		}elseif($this->meta === self::FISH_CLOWNFISH){
+			return 1;
+		}elseif($this->meta === self::FISH_PUFFERFISH){
+			return 1.2;
+		}
+		return 0;
+	}
 
+	public function getSaturationRestore() : float{
+		if($this->meta === self::FISH_FISH){
+			return 0.4;
+		}elseif($this->meta === self::FISH_SALMON){
+			return 0.4;
+		}elseif($this->meta === self::FISH_CLOWNFISH){
+			return 0.2;
+		}elseif($this->meta === self::FISH_PUFFERFISH){
+			return 0.2;
+		}
+		return 0;
+	}
 
-    /**
-     *
-     * @param unknown $meta
-     * @return unknown
-     */
-    public function getNameByMeta($meta)
-    {
-        static $names = [self::NORMAL => "Raw Fish", self::SALMON => "Raw Salmon", self::CLOWNFISH => "Clownfish", self::PUFFERFISH => "Pufferfish", 4 => "Unknown Fish"];
-        return $names[$meta & 0x04];
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getEffects()
-    {
-        return $this->meta === self::PUFFERFISH?[[Effect::getEffect(Effect::NAUSEA)->setDuration(15 * 20)->setAmplifier(1), 1], [Effect::getEffect(Effect::HUNGER)->setDuration(15 * 20)->setAmplifier(2), 1], [Effect::getEffect(Effect::POISON)->setDuration(60 * 20)->setAmplifier(3), 1]]:[];
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getSaturation()
-    {
-        return ($this->meta === self::NORMAL || $this->meta === self::SALMON)?2:(($this->meta === self::CLOWNFISH || $this->meta === self::PUFFERFISH)?1:0);
-    }
+	public function getAdditionalEffects() : array{
+		return $this->meta === self::FISH_PUFFERFISH ? [
+			Effect::getEffect(Effect::HUNGER)->setDuration(300)->setAmplifier(2),
+			Effect::getEffect(Effect::NAUSEA)->setDuration(300)->setAmplifier(1),
+			Effect::getEffect(Effect::POISON)->setDuration(1200)->setAmplifier(3),
+		] : [];
+	}
 }

@@ -1,34 +1,23 @@
 <?php
-/**
- * src/pocketmine/item/Minecart.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author iTX Technologies
+ * @link https://itxtech.org
  *
- *
-*/
+ */
 
 namespace pocketmine\item;
 
@@ -41,86 +30,46 @@ use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\FloatTag;
 use pocketmine\entity\Minecart as MinecartEntity;
 
-
 class Minecart extends Item{
-
-	/**
-	 *
-	 * @param unknown $meta  (optional)
-	 * @param unknown $count (optional)
-	 */
-	public function __construct($meta = 0, $count = 1) {
+	public function __construct($meta = 0, $count = 1){
 		parent::__construct(self::MINECART, $meta, $count, "Minecart");
 	}
 
-
-	/**
-	 *
-	 * @return unknown
-	 */
-	public function getMaxStackSize() {
-		return 1;
-	}
-
-
-	/**
-	 *
-	 * @return unknown
-	 */
-	public function canBeActivated(): bool{
+	public function canBeActivated() : bool {
 		return true;
 	}
 
-
-	/**
-	 *
-	 * @param Level   $level
-	 * @param Player  $player
-	 * @param Block   $block
-	 * @param Block   $target
-	 * @param unknown $face
-	 * @param unknown $fx
-	 * @param unknown $fy
-	 * @param unknown $fz
-	 * @return unknown
-	 */
-	public function onActivate(Level $level, Player $player, Block $block, Block $target, $face, $fx, $fy, $fz) {
-		$blockTemp = $level->getBlock($block->add(0, -1, 0));
-		//if(!$block instanceof RailBlock || !$block instanceof Rail) return false; in previuos version IM
-		//if($blockTemp->getId() != self::RAIL and $blockTemp->getId() != self::POWERED_RAIL) return; in previuos version Genisys
-
-		$minecart = new MinecartEntity($player->getLevel()->getChunk($block->getX() >> 4, $block->getZ() >> 4), new CompoundTag("", array(
-					"Pos" => new ListTag("Pos", array(
-							new DoubleTag("", $block->getX()),
-							new DoubleTag("", $block->getY() + 1),
-							new DoubleTag("", $block->getZ())
-						)),
-					"Motion" => new ListTag("Motion", array(
-							new DoubleTag("", 0),
-							new DoubleTag("", 0),
-							new DoubleTag("", 0)
-						)),
-					"Rotation" => new ListTag("Rotation", array(
-							new FloatTag("", 0),
-							new FloatTag("", 0)
-						)),
-				)));
+	public function onActivate(Level $level, Player $player, Block $block, Block $target, $face, $fx, $fy, $fz){
+		$minecart = new MinecartEntity($player->getLevel(), new CompoundTag("", [
+			"Pos" => new ListTag("Pos", [
+				new DoubleTag("", $block->getX()),
+				new DoubleTag("", $block->getY() + 0.8),
+				new DoubleTag("", $block->getZ())
+			]),
+			"Motion" => new ListTag("Motion", [
+				new DoubleTag("", 0),
+				new DoubleTag("", 0),
+				new DoubleTag("", 0)
+			]),
+			"Rotation" => new ListTag("Rotation", [
+				new FloatTag("", 0),
+				new FloatTag("", 0)
+			]),
+		]));
 		$minecart->spawnToAll();
 
-		if ($player->isSurvival()) {
+		if($player->isSurvival()){
 			$item = $player->getInventory()->getItemInHand();
 			$count = $item->getCount();
-			if (--$count <= 0) {
+			if(--$count <= 0){
 				$player->getInventory()->setItemInHand(Item::get(Item::AIR));
-				return;
+				return true;
 			}
 
 			$item->setCount($count);
 			$player->getInventory()->setItemInHand($item);
 		}
-
+		
 		return true;
 	}
-
-
 }

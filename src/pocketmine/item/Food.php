@@ -1,100 +1,76 @@
 <?php
-/**
- * src/pocketmine/item/Food.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  *
  *
 */
 
 namespace pocketmine\item;
 
+use pocketmine\entity\Entity;
+
+use pocketmine\event\entity\EntityEatItemEvent;
+use pocketmine\network\protocol\EntityEventPacket;
 use pocketmine\Player;
+use pocketmine\Server;
 
-abstract class Food extends Item
-{
-    public $saturation = 0;
+abstract class Food extends Item implements FoodSource{
+	public function canBeConsumed() : bool{
+		return true;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getSaturation()
-    {
-        return $this->saturation;
-    }
+	public function canBeConsumedBy(Entity $entity) : bool{
+		return $entity instanceof Player and ($entity->getFood() < $entity->getMaxFood()) and $this->canBeConsumed();
+	}
 
+	public function getResidue(){
+		if($this->getCount() === 1){
+			return Item::get(0);
+		}else{
+			$new = clone $this;
+			$new->count--;
+			return $new;
+		}
+	}
 
-    /**
-     *         saturation (float) $float
-     *
-     * @param unknown
-     * @param unknown $float
-     * @return unknown
-     */
-    public function setSaturation($float)
-    {
-        return $this->saturation = $float;
-    }
+	public function getAdditionalEffects() : array{
+		return [];
+	}
 
+	public function onConsume(Entity $human){
+		$pk = new EntityEventPacket();
+		$pk->eid = $human->getId();
+		$pk->event = EntityEventPacket::USE_ITEM;
+		if($human instanceof Player){
+			$human->dataPacket($pk);
+		}
+		
+		$server = $human->getLevel()->getServer();
+		
+		$server->broadcastPacket($human->getViewers(), $pk);
 
-    /**
-     *         array([Effect, chance])
-     *
-     * @param unknown
-     * @return unknown
-     */
-    public function getEffects()
-    {
-        return [];
-    }
+		Server::getInstance()->getPluginManager()->callEvent($ev = new EntityEatItemEvent($human, $this));
 
+		$human->addSaturation($ev->getSaturationRestore());
+		$human->addFood($ev->getFoodRestore());
+		foreach($ev->getAdditionalEffects() as $effect){
+			$human->addEffect($effect);
+		}
 
-    /**
-     *         Effects (array) $effects
-     *
-     * @param unknown
-     * @param unknown $effects
-     * @return unknown
-     */
-    public function setEffects($effects)
-    {
-        return $this->effects = $effects;
-    }
-
-
-    /**
-     *
-     * @param Player  $player
-     */
-    public function giveEffects(Player $player)
-    {
-        $effects = $this->getEffects();
-        foreach ($effects as $effect) {
-            $player->addEffect($effect);
-        }
-    }
+		$human->getInventory()->setItemInHand($ev->getResidue());
+	}
 }
