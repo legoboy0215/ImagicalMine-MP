@@ -1,28 +1,23 @@
 <?php
 
-/*
+/**
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalmine.net/
+ * @author PocketMine Team
+ * @link   http://www.pocketmine.net/
  *
  *
-*/
+ */
 
 namespace pocketmine\event\entity;
 
@@ -33,33 +28,37 @@ use pocketmine\event\Cancellable;
 /**
  * Called when an Entity, excluding players, changes a block directly
  */
-class EntityBlockChangeEvent extends EntityEvent implements Cancellable
-{
-    public static $handlerList = null;
+class EntityBlockChangeEvent extends EntityEvent implements Cancellable{
+	public static $handlerList = null;
 
-    private $from;
-    private $to;
+	private $from;
+	private $to;
 
-    public function __construct(Entity $entity, Block $from, Block $to)
-    {
-        $this->entity = $entity;
-        $this->from = $from;
-        $this->to = $to;
-    }
+	public function __construct(Entity $entity, Block $from, Block $to){
+		$this->entity = $entity;
+		$this->from = $from;
+		$this->to = $to;
+	}
 
-    /**
-     * @return Block
+	/**
+	 * @return Block
+	 */
+	public function getBlock(){
+		return $this->from;
+	}
+
+	/**
+	 * @return Block
+	 */
+	public function getTo(){
+		return $this->to;
+	}
+
+	/**
+	 * @return EventName|string
      */
-    public function getBlock()
-    {
-        return $this->from;
-    }
+	public function getName(){
+		return "EntityBlockChangeEvent";
+	}
 
-    /**
-     * @return Block
-     */
-    public function getTo()
-    {
-        return $this->to;
-    }
 }
