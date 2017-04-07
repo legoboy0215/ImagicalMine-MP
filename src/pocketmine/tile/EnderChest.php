@@ -2,38 +2,36 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *    _______                                _
+ *   |__   __|                              | |
+ *      | | ___  ___ ___  ___ _ __ __ _  ___| |_
+ *      | |/ _ \/ __/ __|/ _ \  __/ _` |/ __| __|
+ *      | |  __/\__ \__ \  __/ | | (_| | (__| |_
+ *      |_|\___||___/___/\___|_|  \__,_|\___|\__|
+ *
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
+ * @author Tesseract Team
+ * @link http://www.github.com/TesseractTeam/Tesseract
  * 
  *
-*/
+ */
 
 namespace pocketmine\tile;
 
-use pocketmine\level\Level;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 
-class EnchantTable extends Spawnable implements Nameable{
+class EnderChest extends Spawnable implements Nameable{
 
-	public function __construct(Level $level, CompoundTag $nbt){
-		parent::__construct($level, $nbt);
-	}
 
 	public function getName() : string{
-		return $this->hasName() ? $this->namedtag->CustomName->getValue() : "Enchanting Table";
+		return isset($this->namedtag->CustomName) ? $this->namedtag->CustomName->getValue() : "Ender Chest";
 	}
 
 	public function hasName(){
@@ -50,17 +48,17 @@ class EnchantTable extends Spawnable implements Nameable{
 	}
 
 	public function getSpawnCompound(){
-		$nbt = new CompoundTag("", [
-			new StringTag("id", Tile::ENCHANT_TABLE),
+		$enderchest = new CompoundTag("", [
+			new StringTag("id", Tile::ENDER_CHEST),
 			new IntTag("x", (int) $this->x),
 			new IntTag("y", (int) $this->y),
 			new IntTag("z", (int) $this->z)
 		]);
 
 		if($this->hasName()){
-			$nbt->CustomName = $this->namedtag->CustomName;
+			$enderchest->CustomName = $this->namedtag->CustomName;
 		}
 
-		return $nbt;
+		return $enderchest;
 	}
 }
