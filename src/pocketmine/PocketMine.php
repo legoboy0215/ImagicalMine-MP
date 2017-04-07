@@ -95,11 +95,11 @@ namespace pocketmine {
     use pocketmine\utils\Utils;
     use pocketmine\wizard\Installer;
 
-    const VERSION = "1.4";
+    const VERSION = "2.0dev";
     const API_VERSION = "2.0.0";//API version.(plugin api version)
     const CODENAME = "ELITE";
-    const MINECRAFT_VERSION = "v0.14.x alpha";
-    const MINECRAFT_VERSION_NETWORK = "0.14.3";
+    const MINECRAFT_VERSION = "v1.0.x alpha";
+    const MINECRAFT_VERSION_NETWORK = "1.0.0";
 
     /*
      * Startup code. Do not look at it, it may harm you.
