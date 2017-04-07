@@ -57,7 +57,7 @@ class Arrow extends Projectile{
 	public function isCritical() : bool{
 		return $this->isCritical;
 	}
-	
+
 	public function getPotionId() : int{
 		return $this->potionId;
 	}
