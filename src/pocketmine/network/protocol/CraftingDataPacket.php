@@ -31,6 +31,7 @@ use pocketmine\item\Item;
 use pocketmine\utils\BinaryStream;
 
 class CraftingDataPacket extends DataPacket{
+
 	const NETWORK_ID = Info::CRAFTING_DATA_PACKET;
 
 	const ENTRY_SHAPELESS = 0;
@@ -177,24 +178,31 @@ class CraftingDataPacket extends DataPacket{
 		$this->entries[] = $recipe;
 	}
 
-	//public function encode(){
-	//	$this->reset();
-		//$this->putUnsignedVarInt(count($this->entries));
+	public function encode(){
+		$this->reset();
+		$this->putUnsignedVarInt(count($this->entries));
 
-		///$writer = new BinaryStream();
-		////foreach($this->entries as $d){
-		//	$entryType = self::writeEntry($d, $writer);
-			//if($entryType >= 0){
-				//$this->putVarInt($entryType);
-				//$this->put($writer->getBuffer());
-			//}else{
-				//$this->putVarInt(-1);
+		$writer = new BinaryStream();
+		foreach($this->entries as $d){
+			$entryType = self::writeEntry($d, $writer);
+			if($entryType >= 0){
+				$this->putVarInt($entryType);
+				$this->put($writer->getBuffer());
+			}else{
+				$this->putVarInt(-1);
 			}
 
 			$writer->reset();
-		//}
+		}
 
 		$this->putBool($this->cleanRecipes);
+	}
+
+	/**
+	 * @return PacketName|string
+     */
+	public function getName(){
+		return "CraftingDataPacket";
 	}
 
 }
