@@ -1,32 +1,21 @@
 <?php
-/**
- * src/pocketmine/block/FenceGate.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ * 
  *
 */
 
@@ -38,167 +27,81 @@ use pocketmine\math\AxisAlignedBB;
 use pocketmine\Player;
 use pocketmine\level\sound\DoorSound;
 
-class FenceGate extends Transparent implements Redstone
-{
+class FenceGate extends Transparent{
 
-    protected $id = self::FENCE_GATE;
+	protected $id = self::FENCE_GATE;
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
+	public function getName() : string{
+		return "Oak Fence Gate";
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Oak Fence Gate";
-    }
+	public function getHardness() {
+		return 2;
+	}
 
+	public function canBeActivated() : bool {
+		return true;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 2;
-    }
+	public function getToolType(){
+		return Tool::TYPE_AXE;
+	}
 
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
+	protected function recalculateBoundingBox() {
 
+		if(($this->getDamage() & 0x04) > 0){
+			return null;
+		}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getToolType()
-    {
-        return Tool::TYPE_AXE;
-    }
+		$i = ($this->getDamage() & 0x03);
+		if($i === 2 or $i === 0){
+			return new AxisAlignedBB(
+				$this->x,
+				$this->y,
+				$this->z + 0.375,
+				$this->x + 1,
+				$this->y + 1.5,
+				$this->z + 0.625
+			);
+		}else{
+			return new AxisAlignedBB(
+				$this->x + 0.375,
+				$this->y,
+				$this->z,
+				$this->x + 0.625,
+				$this->y + 1.5,
+				$this->z + 1
+			);
+		}
+	}
 
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+        $this->meta = ($player instanceof Player ? ($player->getDirection() - 1) & 0x03 : 0);
+		$this->getLevel()->setBlock($block, $this, true, true);
 
-    /**
-     *
-     * @return unknown
-     */
-    protected function recalculateBoundingBox()
-    {
-        if (($this->getDamage() & 0x04) > 0) {
-            return null;
+		return true;
+	}
+
+	public function getDrops(Item $item) : array {
+		return [
+			[$this->id, 0, 1],
+		];
+	}
+
+	public function onActivate(Item $item, Player $player = null){
+        $this->meta = (($this->meta ^ 0x04) & ~0x02);
+
+        if($player !== null){
+            $this->meta |= (($player->getDirection() - 1) & 0x02);
         }
 
-        $i = ($this->getDamage() & 0x03);
-        if ($i === 2 or $i === 0) {
-            return new AxisAlignedBB(
-                $this->x,
-                $this->y,
-                $this->z + 0.375,
-                $this->x + 1,
-                $this->y + 1.5,
-                $this->z + 0.625
-            );
-        } else {
-            return new AxisAlignedBB(
-                $this->x + 0.375,
-                $this->y,
-                $this->z,
-                $this->x + 0.625,
-                $this->y + 1.5,
-                $this->z + 1
-            );
-        }
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        $faces = [
-            0 => 3,
-            1 => 0,
-            2 => 1,
-            3 => 2,
-        ];
-        $this->meta = $faces[$player instanceof Player ? $player->getDirection() : 0] & 0x03;
-        $this->getLevel()->setBlock($block, $this, true, true);
-
-        return true;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        return [
-            [$this->id, 0, 1],
-        ];
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        $this->getLevel()->setBlock($this, $this, true);
-        $this->getLevel()->addSound(new DoorSound($this));
-        return true;
-    }
-
-
-
-    /**
-     *
-     * @param unknown $type
-     * @param unknown $power
-     */
-    public function onRedstoneUpdate($type, $power)
-    {
-        $ACT = $this->isActivitedByRedstone();
-        $ISC = $this->isCharged();
-        $IPB = $this->isPoweredbyBlock();
-        if (($ACT or $ISC or $IPB) and $this->meta < 4) {
-            $this->meta = $this->meta+4;
-        }
-        if (!$ACT and !$ISC and !$IPB and $this->meta >= 4) {
-            $this->meta = $this->meta-4;
-        }
-
-        $this->getLevel()->setBlock($this, $this);
-        $this->getLevel()->addSound(new DoorSound($this));
-    }
+		$this->getLevel()->setBlock($this, $this, true);
+		$this->level->addSound(new DoorSound($this));
+		return true;
+	}
 }

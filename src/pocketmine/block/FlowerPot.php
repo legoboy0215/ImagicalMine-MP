@@ -1,39 +1,4 @@
 <?php
-/**
- * src/pocketmine/block/FlowerPot.php
- *
- * @package default
- */
-
-
-/*
- *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
- *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
- *
-*/
-/*
- * THIS IS COPIED FROM THE PLUGIN FlowerPot MADE BY @beito123!!
- * https://github.com/beito123/PocketMine-MP-Plugins/blob/master/test%2FFlowerPot%2Fsrc%2Fbeito%2FFlowerPot%2Fomake%2FSkull.php
- *
- */
 
 namespace pocketmine\block;
 
@@ -45,195 +10,106 @@ use pocketmine\tile\Tile;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\tile\FlowerPot as FlowerPotTile;
+use pocketmine\tile\FlowerPot as TileFlowerPot;
 
-class FlowerPot extends Flowable
-{
+class FlowerPot extends Flowable{
 
-    protected $id = Block::FLOWER_POT_BLOCK;
+    const STATE_EMPTY = 0;
+    const STATE_FULL = 1;
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	protected $id = Block::FLOWER_POT_BLOCK;
 
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
+	public function canBeActivated() : bool {
+		return true;
+	}
+
+	public function getName() : string{
+		return "Flower Pot Block";
+	}
+
+	protected function recalculateBoundingBox(){
+		return new AxisAlignedBB(
+			$this->x + 0.3125,
+			$this->y,
+			$this->z + 0.3125,
+			$this->x + 0.6875,
+			$this->y + 0.375,
+			$this->z + 0.6875
+		);
+	}
+
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+        if($this->getSide(Vector3::SIDE_DOWN)->isTransparent()){
+            return false;
+        }
+
+        $this->getLevel()->setBlock($block, $this, true, true);
+
+        $nbt = new CompoundTag("", [
+            new StringTag("id", Tile::FLOWER_POT),
+            new IntTag("x", $block->x),
+            new IntTag("y", $block->y),
+            new IntTag("z", $block->z),
+            new ShortTag("item", 0),
+            new IntTag("mData", 0),
+            ]);
+
+        if($item->hasCustomBlockData()){
+            foreach($item->getCustomBlockData() as $key => $v){
+                $nbt->{$key} = $v;
+			}
+		}
+
+        Tile::createTile(Tile::FLOWER_POT, $this->getLevel(), $nbt);
         return true;
-    }
+	}
 
+	public function onUpdate($type){
+		if($type === Level::BLOCK_UPDATE_NORMAL){
+			if($this->getSide(0)->isTransparent() === true){
+				$this->getLevel()->useBreakOn($this);
+				return Level::BLOCK_UPDATE_NORMAL;
+			}
+		}
+		return false;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeFlowedInto()
-    {
-        return true;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 0;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function isSolid()
-    {
-        return false;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Flower Pot";
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getBoundingBox()
-    {
-        //todo fix...
-        return new AxisAlignedBB(
-            $this->x - 0.6875,
-            $this->y - 0.375,
-            $this->z - 0.6875,
-            $this->x + 0.6875,
-            $this->y + 0.375,
-            $this->z + 0.6875
-        );
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        if ($this->getSide(Vector3::SIDE_DOWN)->isTransparent() === false) {
-            $this->getLevel()->setBlock($block, $this, true, true);
-            $nbt = new CompoundTag("", [
-                    new StringTag("id", Tile::FLOWER_POT),
-                    new IntTag("x", $block->x),
-                    new IntTag("y", $block->y),
-                    new IntTag("z", $block->z),
-                    new IntTag("item", 0),
-                    new IntTag("data", 0),
-                ]);
-            $pot = Tile::createTile("FlowerPot", $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4), $nbt);
+    public function onActivate(Item $item, Player $player = null){
+        $pot = $this->getLevel()->getTile($this);
+        if(!($pot instanceof TileFlowerPot)){
+            return false;
+ 		}
+ 		if(!$pot->canAddItem($item)){
             return true;
-        }
-        return false;
-    }
+ 		}
 
+ 		$this->setDamage(self::STATE_FULL); //specific damage value is unnecessary, it just needs to be non-zero to show an item.
+ 		$this->getLevel()->setBlock($this, $this, true, false);
+ 		$pot->setItem($item);
 
-    /*public function onBreak(Item $item){
-        $this->getLevel()->setBlock($this, new Air(), true, true, true);
-        return true;
-    }*/
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        $tile = $this->getLevel()->getTile($this);
-        if ($tile instanceof FlowerPotTile) {
-            if ($tile->getFlowerPotItem() === Item::AIR) {
-                switch ($item->getId()) {
-                case Item::TALL_GRASS:
-                    if ($item->getDamage() === 1) {
-                        break;
-                    }
-                case Item::SAPLING:
-                case Item::DEAD_BUSH:
-                case Item::DANDELION:
-                case Item::RED_FLOWER:
-                case Item::BROWN_MUSHROOM:
-                case Item::RED_MUSHROOM:
-                case Item::CACTUS:
-                    $tile->setFlowerPotData($item->getId(), $item->getDamage());
-                    $this->setDamage($item->getDamage());
-                    if ($player->isSurvival()) {
-                        $item->count--;
-                    }
-                    return true;
-                    break;
-                }
+ 		if($player instanceof Player){
+            if($player->isSurvival()){
+                $item->setCount($item->getCount() - 1);
+                $player->getInventory()->setItemInHand($item->getCount() > 0 ? $item : Item::get(Item::AIR));
             }
-        }
-        return false;
-    }
+ 		}
+ 		return true;
+ 	}
 
-
-    /**
-     *
-     * @param unknown $type
-     * @return unknown
-     */
-    public function onUpdate($type)
-    {
-        if ($type === Level::BLOCK_UPDATE_NORMAL) {
-            if ($this->getSide(Vector3::SIDE_DOWN)->getId() === Item::AIR) {
-                $this->getLevel()->useBreakOn($this);
-                return Level::BLOCK_UPDATE_NORMAL;
-            }
-        }
-        return false;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        $items = array([Item::FLOWER_POT, 0, 1]);
-        if (($tile = $this->getLevel()->getTile($this)) instanceof FlowerPotTile) {
-            if ($tile->getFlowerPotItem() !== Item::AIR) {
-                $items[] = array($tile->getFlowerPotItem(), $tile->getFlowerPotData(), 1);
-            }
-        }
-        return $items;
-    }
+	public function getDrops(Item $item) : array{
+		$items = [[Item::FLOWER_POT, 0, 1]];
+		$tile = $this->getLevel()->getTile($this);
+		if($tile instanceof TileFlowerPot){
+			if(($item = $tile->getItem())->getId() !== Item::AIR){
+				$items[] = [$item->getId(), $item->getDamage(), 1];
+			}
+		}
+		return $items;
+	}
 }

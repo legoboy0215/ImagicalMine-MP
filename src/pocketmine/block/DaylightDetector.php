@@ -1,124 +1,66 @@
 <?php
-/**
- * src/pocketmine/block/DaylightDetector.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author iTX Technologies
+ * @link https://itxtech.org
  *
- *
-*/
+ */
 
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
-use pocketmine\level\Level;
-use pocketmine\Player;
-
-class DaylightDetector extends Transparent implements Redstone, RedstoneSwitch
-{
-
-    protected $id = self::DAYLIGHT_DETECTOR;
-
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
 
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Daylight Detector";
-    }
+class DaylightDetector extends Solid{
+	protected $id = self::DAYLIGHT_SENSOR;
+	
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
+	public function getName() : string{
+		return "Daylight Sensor";
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function isRedstone()
-    {
-        return true;
-    }
+	public function getBoundingBox(){
+		if($this->boundingBox === null){
+			$this->boundingBox = $this->recalculateBoundingBox();
+		}
+		return $this->boundingBox;
+	}
 
+	public function canBeFlowedInto(){
+		return false;
+	}
 
+	public function canBeActivated() : bool {
+		return true;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
+	public function getHardness() {
+		return 0.2;
+	}
 
+	public function getResistance(){
+		return 1;
+	}
 
-    /**
-     *
-     * @param unknown $type
-     * @return unknown
-     */
-    public function onUpdate($type)
-    {
-        if ($type === Level::BLOCK_UPDATE_SCHEDULED || $type === Level::BLOCK_UPDATE_NORMAL) {
-            $this->power=$this->getLightLevel();
-            $this->getLevel()->setBlock($this, $this, true, true);
-            $this->getLevel()->scheduleUpdate($this, 50);
-            $this->BroadcastRedstoneUpdate(Level::REDSTONE_UPDATE_NORMAL, $this->getPower());
-        }
-        return false;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        $this->id=self::DAYLIGHT_DETECTOR_INVERTED;
-        $this->getLevel()->setBlock($this, $this, true);
-        $this->BroadcastRedstoneUpdate(Level::REDSTONE_UPDATE_NORMAL, $this->getPower());
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        return [[self::DAYLIGHT_DETECTOR, 0, 1]];
-    }
+	public function getDrops(Item $item) : array {
+		return [
+			[self::DAYLIGHT_SENSOR, 0, 1]
+		];
+	}
 }

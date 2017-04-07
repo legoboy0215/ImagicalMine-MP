@@ -1,32 +1,21 @@
 <?php
-/**
- * src/pocketmine/block/Glowstone.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ * 
  *
 */
 
@@ -34,69 +23,47 @@ namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\item\enchantment\Enchantment;
 
-class Glowstone extends Transparent
-{
+class Glowstone extends Transparent{
 
-    protected $id = self::GLOWSTONE_BLOCK;
+	protected $id = self::GLOWSTONE_BLOCK;
 
-    /**
-     *
-     */
-    public function __construct()
-    {
-    }
+	public function __construct(){
 
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Glowstone";
-    }
+	public function getName() : string{
+		return "Glowstone";
+	}
 
+	public function getHardness() {
+		return 0.3;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 0.3;
-    }
+	public function getToolType(){
+		return Tool::TYPE_PICKAXE;
+	}
 
+	public function getLightLevel(){
+		return 15;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getToolType()
-    {
-        return Tool::TYPE_PICKAXE;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getLightLevel()
-    {
-        return 15;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        return [
-            [Item::GLOWSTONE_DUST, 0, mt_rand(2, 4)],
-        ];
-    }
+	public function getDrops(Item $item) : array {
+		if($item->getEnchantmentLevel(Enchantment::TYPE_MINING_SILK_TOUCH) > 0){
+			return [
+				[Item::GLOWSTONE_BLOCK, 0, 1],
+			];
+		}else{
+			$fortuneL = $item->getEnchantmentLevel(Enchantment::TYPE_MINING_FORTUNE);
+			$fortuneL = $fortuneL > 3 ? 3 : $fortuneL;
+			$times = [1,1,2,3,4];
+			$time = $times[mt_rand(0, $fortuneL + 1)];
+			$num = mt_rand(2, 4) * $time;
+			$num = $num > 4 ? 4 : $num;
+			return [
+				[Item::GLOWSTONE_DUST, 0, $num],
+			];
+		}
+	}
 }
