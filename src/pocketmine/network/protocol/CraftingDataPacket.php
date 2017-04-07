@@ -181,14 +181,14 @@ class CraftingDataPacket extends DataPacket{
 	//	$this->reset();
 		//$this->putUnsignedVarInt(count($this->entries));
 
-		$writer = new BinaryStream();
-		foreach($this->entries as $d){
-			$entryType = self::writeEntry($d, $writer);
-			if($entryType >= 0){
-				$this->putVarInt($entryType);
-				$this->put($writer->getBuffer());
-			}else{
-				$this->putVarInt(-1);
+		///$writer = new BinaryStream();
+		////foreach($this->entries as $d){
+		//	$entryType = self::writeEntry($d, $writer);
+			//if($entryType >= 0){
+				//$this->putVarInt($entryType);
+				//$this->put($writer->getBuffer());
+			//}else{
+				//$this->putVarInt(-1);
 			}
 
 			$writer->reset();
