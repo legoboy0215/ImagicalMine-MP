@@ -1,31 +1,20 @@
 <?php
-/**
- * src/pocketmine/inventory/FurnaceRecipe.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  *
  *
 */
@@ -36,88 +25,59 @@ use pocketmine\item\Item;
 use pocketmine\Server;
 use pocketmine\utils\UUID;
 
-class FurnaceRecipe implements Recipe
-{
+class FurnaceRecipe implements Recipe{
 
-    private $id = null;
+	private $id = null;
 
-    /** @var Item */
-    private $output;
+	/** @var Item */
+	private $output;
 
-    /** @var Item */
-    private $ingredient;
+	/** @var Item */
+	private $ingredient;
 
-    /**
-     *
-     * @param Item    $result
-     * @param Item    $ingredient
-     */
-    public function __construct(Item $result, Item $ingredient)
-    {
-        $this->output = clone $result;
-        $this->ingredient = clone $ingredient;
-    }
+	/**
+	 * @param Item $result
+	 * @param Item $ingredient
+	 */
+	public function __construct(Item $result, Item $ingredient){
+		$this->output = clone $result;
+		$this->ingredient = clone $ingredient;
+	}
 
+	public function getId(){
+		return $this->id;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
+	public function setId(UUID $id){
+		if($this->id !== null){
+			throw new \InvalidStateException("Id is already set");
+		}
 
+		$this->id = $id;
+	}
 
-    /**
-     *
-     * @param UUID    $id
-     */
-    public function setId(UUID $id)
-    {
-        if ($this->id !== null) {
-            throw new \InvalidStateException("Id is already set");
-        }
+	/**
+	 * @param Item $item
+	 */
+	public function setInput(Item $item){
+		$this->ingredient = clone $item;
+	}
 
-        $this->id = $id;
-    }
+	/**
+	 * @return Item
+	 */
+	public function getInput(){
+		return clone $this->ingredient;
+	}
 
+	/**
+	 * @return Item
+	 */
+	public function getResult(){
+		return clone $this->output;
+	}
 
-    /**
-     *
-     * @param Item    $item
-     */
-    public function setInput(Item $item)
-    {
-        $this->ingredient = clone $item;
-    }
-
-
-    /**
-     *
-     * @return Item
-     */
-    public function getInput()
-    {
-        return clone $this->ingredient;
-    }
-
-
-    /**
-     *
-     * @return Item
-     */
-    public function getResult()
-    {
-        return clone $this->output;
-    }
-
-
-    /**
-     *
-     */
-    public function registerToCraftingManager()
-    {
-        Server::getInstance()->getCraftingManager()->registerFurnaceRecipe($this);
-    }
+	public function registerToCraftingManager(){
+		Server::getInstance()->getCraftingManager()->registerFurnaceRecipe($this);
+	}
 }

@@ -21,9 +21,14 @@
 
 namespace pocketmine\inventory;
 
-/**
- * All plugins that want to create their custom inventory should use this class as a base
- */
-abstract class CustomInventory extends ContainerInventory{
+use pocketmine\utils\UUID;
+
+class MultiRecipe{
+
+	private $uuid;
+
+	public function __construct(UUID $uuid){
+		$this->uuid = $uuid;
+	}
 
 }

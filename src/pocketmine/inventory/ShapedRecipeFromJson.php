@@ -26,7 +26,7 @@ use pocketmine\Server;
 use pocketmine\utils\UUID;
 use pocketmine\math\Vector2;
 
-class ShapedRecipe implements Recipe{
+class ShapedRecipeFromJson extends ShapedRecipe{
 	/** @var Item */
 	private $output;
 
@@ -41,9 +41,9 @@ class ShapedRecipe implements Recipe{
 	private $shapeItems = [];
 
 	/**
-	 * @param Item $result
-	 * @param int  $height
-	 * @param int  $width
+	 * @param Item     $result
+	 * @param int      $height
+	 * @param int      $width
 	 *
 	 * @throws \Exception
 	 */
@@ -99,7 +99,6 @@ class ShapedRecipe implements Recipe{
 			throw new \Exception("Symbol does not appear in the shape: " . $key);
 		}
 
-		$item->setCount(1);
 		$this->fixRecipe($key, $item);
 
 		return $this;
@@ -129,23 +128,6 @@ class ShapedRecipe implements Recipe{
 
 		return $ingredients;
 	}
-
-	/**
- 	 * @return Item[]
- 	 */
- 	public function getIngredientList(){
- 		$ingredients = [];
- 		for ($x = 0; $x < 3; ++$x){
- 			for ($y = 0; $y < 3; ++$y){
- 				if (!empty($this->ingredients[$x][$y])){
- 					if ($this->ingredients[$x][$y]->getId() !== Item::AIR){
- 						$ingredients[] = clone $this->ingredients[$x][$y];
- 					}
- 				}
- 			}
- 		}
- 		return $ingredients;
- 	}
 
 	/**
 	 * @param $x
