@@ -70,7 +70,7 @@ use pocketmine\inventory\SimpleTransactionGroup;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
 use pocketmine\level\ChunkLoader;
-use pocketmine\level\format\FullChunk;
+use pocketmine\level\format\Chunk as FullChunk;
 use pocketmine\level\Level;
 use pocketmine\level\Location;
 use pocketmine\level\Position;
