@@ -1,64 +1,60 @@
 <?php
-
 /*
  *
- *  _                       _           _ __  __ _             
- * (_)                     (_)         | |  \/  (_)            
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___  
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \ 
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/ 
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___| 
- *                     __/ |                                   
- *                    |___/                                                                     
- * 
- * This program is a third party build by ImagicalMine.
- * 
- * PocketMine is free software: you can redistribute it and/or modify
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  * 
  *
 */
-
 namespace pocketmine\network\protocol;
 
 #include <rules/DataPacket.h>
 
-
 use pocketmine\entity\Attribute;
 
-class UpdateAttributesPacket extends DataPacket
-{
-    const NETWORK_ID = Info::UPDATE_ATTRIBUTES_PACKET;
 
+class UpdateAttributesPacket extends DataPacket{
 
-    public $entityId;
-    public $minValue;
-    public $maxValue;
-    public $value;
-    public $name;
-    /** @var Attribute[] */
-    public $entries = [];
+	const NETWORK_ID = Info::UPDATE_ATTRIBUTES_PACKET;
 
-    public function decode()
-    {
-    }
+	public $entityId;
 
-    public function encode()
-    {
-        $this->reset();
+	/** @var Attribute[] */
+	public $entries = [];
 
-        $this->putLong($this->entityId);
+	public function decode(){
 
-        $this->putShort(1);
+	}
 
-        $this->putFloat($this->minValue);
-        $this->putFloat($this->maxValue);
-        $this->putFloat($this->value);
-        $this->putString($this->name);
-    }
+	public function encode(){
+		$this->reset();
+		$this->putEntityId($this->entityId);
+		$this->putUnsignedVarInt(count($this->entries));
+		foreach($this->entries as $entry){
+			$this->putLFloat($entry->getMinValue());
+			$this->putLFloat($entry->getMaxValue());
+			$this->putLFloat($entry->getValue());
+			$this->putLFloat($entry->getDefaultValue());
+			$this->putString($entry->getName());
+		}
+	}
+
+	/**
+	 * @return PacketName|string
+     */
+	public function getName(){
+		return "UpdateAttributesPacket";
+	}
+
 }

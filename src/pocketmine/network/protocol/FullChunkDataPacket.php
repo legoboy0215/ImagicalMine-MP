@@ -2,24 +2,19 @@
 
 /*
  *
- *  _                       _           _ __  __ _             
- * (_)                     (_)         | |  \/  (_)            
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___  
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \ 
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/ 
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___| 
- *                     __/ |                                   
- *                    |___/                                                                     
- * 
- * This program is a third party build by ImagicalMine.
- * 
- * PocketMine is free software: you can redistribute it and/or modify
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  * 
  *
 */
@@ -29,29 +24,30 @@ namespace pocketmine\network\protocol;
 #include <rules/DataPacket.h>
 
 
-class FullChunkDataPacket extends DataPacket
-{
-    const NETWORK_ID = Info::FULL_CHUNK_DATA_PACKET;
-    
-    const ORDER_COLUMNS = 0;
-    const ORDER_LAYERED = 1;
+class FullChunkDataPacket extends DataPacket{
 
-    public $chunkX;
-    public $chunkZ;
-    public $order = self::ORDER_COLUMNS;
-    public $data;
+	const NETWORK_ID = Info::FULL_CHUNK_DATA_PACKET;
 
-    public function decode()
-    {
-    }
+	public $chunkX;
+	public $chunkZ;
+	public $data;
 
-    public function encode()
-    {
-        $this->reset();
-        $this->putInt($this->chunkX);
-        $this->putInt($this->chunkZ);
-        $this->putByte($this->order);
-        $this->putInt(strlen($this->data));
-        $this->put($this->data);
-    }
+	public function decode(){
+
+	}
+
+	public function encode(){
+		$this->reset();
+		$this->putVarInt($this->chunkX);
+		$this->putVarInt($this->chunkZ);
+		$this->putString($this->data);
+	}
+
+	/**
+	 * @return PacketName|string
+     */
+	public function getName(){
+		return "FullChunkDataPacket";
+	}
+
 }

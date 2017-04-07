@@ -2,24 +2,19 @@
 
 /*
  *
- *  _                       _           _ __  __ _             
- * (_)                     (_)         | |  \/  (_)            
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___  
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \ 
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/ 
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___| 
- *                     __/ |                                   
- *                    |___/                                                                     
- * 
- * This program is a third party build by ImagicalMine.
- * 
- * PocketMine is free software: you can redistribute it and/or modify
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  * 
  *
 */
@@ -29,51 +24,62 @@ namespace pocketmine\network\protocol;
 #include <rules/DataPacket.h>
 
 #ifndef COMPILE
-use pocketmine\utils\Binary;
+use pocketmine\entity\Attribute;
 
 #endif
 
-class AddEntityPacket extends DataPacket
-{
-    const NETWORK_ID = Info::ADD_ENTITY_PACKET;
+class AddEntityPacket extends DataPacket{
 
-    public $eid;
-    public $type;
-    public $x;
-    public $y;
-    public $z;
-    public $speedX;
-    public $speedY;
-    public $speedZ;
-    public $yaw;
-    public $pitch;
-    public $metadata;
-    public $links = [];
+	const NETWORK_ID = Info::ADD_ENTITY_PACKET;
 
-    public function decode()
-    {
-    }
+	public $eid;
+	public $type;
+	public $x;
+	public $y;
+	public $z;
+	public $speedX;
+	public $speedY;
+	public $speedZ;
+	public $yaw;
+	public $pitch;
+	public $attributes = [];
+	public $metadata = [];
+	public $links = [];
 
-    public function encode()
-    {
-        $this->reset();
-        $this->putLong($this->eid);
-        $this->putInt($this->type);
-        $this->putFloat($this->x);
-        $this->putFloat($this->y);
-        $this->putFloat($this->z);
-        $this->putFloat($this->speedX);
-        $this->putFloat($this->speedY);
-        $this->putFloat($this->speedZ);
-        $this->putFloat($this->yaw);
-        $this->putFloat($this->pitch);
-        $meta = Binary::writeMetadata($this->metadata);
-        $this->put($meta);
-        $this->putShort(count($this->links));
-        foreach ($this->links as $link) {
-            $this->putLong($link[0]);
-            $this->putLong($link[1]);
-            $this->putByte($link[2]);
-        }
-    }
+	public function decode(){
+
+	}
+
+	public function encode(){
+		$this->reset();
+		$this->putEntityId($this->eid); //EntityUniqueID - TODO: verify this
+		$this->putEntityId($this->eid);
+		$this->putUnsignedVarInt($this->type);
+		$this->putVector3f($this->x, $this->y, $this->z);
+		$this->putVector3f($this->speedX, $this->speedY, $this->speedZ);
+		$this->putLFloat($this->pitch * (256 / 360));
+		$this->putLFloat($this->yaw * (256 / 360));
+		$this->putUnsignedVarInt(count($this->attributes));
+		foreach($this->attributes as $entry){
+			$this->putString($entry->getName());
+			$this->putLFloat($entry->getMinValue());
+			$this->putLFloat($entry->getValue());
+			$this->putLFloat($entry->getMaxValue());
+		}
+		$this->putEntityMetadata($this->metadata);
+		$this->putUnsignedVarInt(count($this->links));
+		foreach($this->links as $link){
+			$this->putEntityId($link[0]);
+			$this->putEntityId($link[1]);
+			$this->putByte($link[2]);
+		}
+	}
+
+	/**
+	 * @return AddEntityPacket|string
+     */
+	public function getName(){
+		return "AddEntityPacket";
+	}
+
 }

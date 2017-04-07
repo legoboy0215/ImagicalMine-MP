@@ -2,24 +2,19 @@
 
 /*
  *
- *  _                       _           _ __  __ _             
- * (_)                     (_)         | |  \/  (_)            
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___  
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \ 
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/ 
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___| 
- *                     __/ |                                   
- *                    |___/                                                                     
- * 
- * This program is a third party build by ImagicalMine.
- * 
- * PocketMine is free software: you can redistribute it and/or modify
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  * 
  *
 */
@@ -29,33 +24,37 @@ namespace pocketmine\network\protocol;
 #include <rules/DataPacket.h>
 
 
-class AddItemEntityPacket extends DataPacket
-{
-    const NETWORK_ID = Info::ADD_ITEM_ENTITY_PACKET;
+class AddItemEntityPacket extends DataPacket{
 
-    public $eid;
-    public $item;
-    public $x;
-    public $y;
-    public $z;
-    public $speedX;
-    public $speedY;
-    public $speedZ;
+	const NETWORK_ID = Info::ADD_ITEM_ENTITY_PACKET;
 
-    public function decode()
-    {
-    }
+	public $eid;
+	public $item;
+	public $x;
+	public $y;
+	public $z;
+	public $speedX;
+	public $speedY;
+	public $speedZ;
 
-    public function encode()
-    {
-        $this->reset();
-        $this->putLong($this->eid);
-        $this->putSlot($this->item);
-        $this->putFloat($this->x);
-        $this->putFloat($this->y);
-        $this->putFloat($this->z);
-        $this->putFloat($this->speedX);
-        $this->putFloat($this->speedY);
-        $this->putFloat($this->speedZ);
-    }
+	public function decode(){
+
+	}
+
+	public function encode(){
+		$this->reset();
+		$this->putEntityId($this->eid); //EntityUniqueID
+		$this->putEntityId($this->eid); //EntityRuntimeID
+		$this->putSlot($this->item);
+		$this->putVector3f($this->x, $this->y, $this->z);
+		$this->putVector3f($this->speedX, $this->speedY, $this->speedZ);
+	}
+
+	/**
+	 * @return AddItemEntityPacket|string
+     */
+	public function getName(){
+		return "AddItemEntityPacket";
+	}
+
 }

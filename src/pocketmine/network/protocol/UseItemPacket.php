@@ -2,24 +2,19 @@
 
 /*
  *
- *  _                       _           _ __  __ _             
- * (_)                     (_)         | |  \/  (_)            
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___  
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \ 
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/ 
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___| 
- *                     __/ |                                   
- *                    |___/                                                                     
- * 
- * This program is a third party build by ImagicalMine.
- * 
- * PocketMine is free software: you can redistribute it and/or modify
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
  * 
  *
 */
@@ -29,43 +24,43 @@ namespace pocketmine\network\protocol;
 #include <rules/DataPacket.h>
 
 
-class UseItemPacket extends DataPacket
-{
-    const NETWORK_ID = Info::USE_ITEM_PACKET;
+class UseItemPacket extends DataPacket{
 
-    public $x;
-    public $y;
-    public $z;
-    public $face;
-    public $item;
-    public $fx;
-    public $fy;
-    public $fz;
-    public $posX;
-    public $posY;
-    public $posZ;
-    public $unknown;
-    public $slot;
+	const NETWORK_ID = Info::USE_ITEM_PACKET;
 
-    public function decode()
-    {
-        $this->x = $this->getInt();
-        $this->y = $this->getInt();
-        $this->z = $this->getInt();
-        $this->face = $this->getByte();
-        $this->fx = $this->getFloat();
-        $this->fy = $this->getFloat();
-        $this->fz = $this->getFloat();
-        $this->posX = $this->getFloat();
-        $this->posY = $this->getFloat();
-        $this->posZ = $this->getFloat();
-        $this->unknown = $this->getSignedShort();
-        $this->slot = $this->getSignedShort();
+	public $x;
+	public $y;
+	public $z;
+	public $blockId;
+	public $face;
+	public $item;
+	public $fx;
+	public $fy;
+	public $fz;
+	public $posX;
+	public $posY;
+	public $posZ;
+	public $slot;
 
-        $this->item = $this->getSlot();
-    }
+	public function decode(){
+		$this->getBlockCoords($this->x, $this->y, $this->z);
+		$this->blockId = $this->getUnsignedVarInt();
+		$this->face = $this->getVarInt();
+		$this->getVector3f($this->fx, $this->fy, $this->fz);
+		$this->getVector3f($this->posX, $this->posY, $this->posZ);
+		$this->slot = $this->getVarInt();
+		$this->item = $this->getSlot();
+	}
 
-    public function encode()
-    {
-    }
+	public function encode(){
+
+	}
+
+	/**
+	 * @return PacketName|string
+     */
+	public function getName(){
+		return "UseItemPacket";
+	}
+
 }
