@@ -20,24 +20,15 @@
 
 namespace pocketmine\network\protocol;
 
-use pocketmine\utils\Binary;
+class MapInfoRequestPacket extends DataPacket{
+	const NETWORK_ID = Info::MAP_INFO_REQUEST_PACKET;
 
-class ShowCreditsPacket extends DataPacket{
-	const NETWORK_ID = Info::SHOW_CREDITS_PACKET;
-
-	const TYPE_ADD = 0;
-	const TYPE_REMOVE = 1;
-
-	public $eid;
-	public $type;
+	public $mapid;
 
 	public function decode(){
-
+		$this->mapid = $this->getVarInt();
 	}
 
 	public function encode(){
-		$this->reset();
-		$this->putEntityId($this->eid);
-		$this->putVarInt($this->type);
 	}
 }

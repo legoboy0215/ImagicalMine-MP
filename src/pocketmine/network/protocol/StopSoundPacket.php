@@ -23,23 +23,21 @@ namespace pocketmine\network\protocol;
 
 #include <rules/DataPacket.h>
 
+class StopSoundPacket extends DataPacket{
+	const NETWORK_ID = Info::STOP_SOUND_PACKET;
 
-class FullChunkDataPacket extends DataPacket{
-	const NETWORK_ID = Info::FULL_CHUNK_DATA_PACKET;
-
-	public $chunkX;
-	public $chunkZ;
-	public $data;
+	public $sound;
+	public $stopAll;
 
 	public function decode(){
-
+		$this->sound = $this->getString();
+		$this->stopAll = $this->getBool();
 	}
 
 	public function encode(){
 		$this->reset();
-		$this->putVarInt($this->chunkX);
-		$this->putVarInt($this->chunkZ);
-		$this->putString($this->data);
+		$this->putString($this->sound);
+		$this->putBool($this->stopAll);
 	}
 
 }

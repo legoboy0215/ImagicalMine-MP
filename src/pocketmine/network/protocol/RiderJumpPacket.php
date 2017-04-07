@@ -20,24 +20,21 @@
 
 namespace pocketmine\network\protocol;
 
-use pocketmine\utils\Binary;
+#include <rules/DataPacket.h>
 
-class ShowCreditsPacket extends DataPacket{
-	const NETWORK_ID = Info::SHOW_CREDITS_PACKET;
 
-	const TYPE_ADD = 0;
-	const TYPE_REMOVE = 1;
+class RiderJumpPacket extends DataPacket{
+	const NETWORK_ID = Info::RIDER_JUMP_PACKET;
 
-	public $eid;
-	public $type;
+	public $power;
 
 	public function decode(){
-
+		$this->power = $this->getVarInt();
 	}
 
 	public function encode(){
 		$this->reset();
-		$this->putEntityId($this->eid);
-		$this->putVarInt($this->type);
+		$this->putVarInt($this->power);
 	}
+
 }
