@@ -192,7 +192,7 @@ class CraftingDataPacket extends DataPacket{
 			}
 
 			$writer->reset();
-		}
+		//}
 
 		$this->putBool($this->cleanRecipes);
 	}
