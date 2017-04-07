@@ -25,7 +25,6 @@ use pocketmine\block\TrappedChest;
 use pocketmine\level\Level;
 use pocketmine\network\protocol\BlockEventPacket;
 use pocketmine\Player;
-
 use pocketmine\tile\Chest;
 
 class ChestInventory extends ContainerInventory{
@@ -34,8 +33,8 @@ class ChestInventory extends ContainerInventory{
 	}
 
 	/**
-	 * @return InventoryHolder|Chest
-     */
+	 * @return Chest
+	 */
 	public function getHolder(){
 		return $this->holder;
 	}

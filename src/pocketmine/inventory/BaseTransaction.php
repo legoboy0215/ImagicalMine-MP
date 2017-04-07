@@ -134,19 +134,17 @@ class BaseTransaction implements Transaction{
 
 	/**
 	 * Returns the change in inventory resulting from this transaction
-	 * @return array|Item
-     *				"in" => items added to the inventory
-	 *				"out" => items removed from the inventory
+	 * @return array ("in" => items added to the inventory, "out" => items removed from the inventory)
 	 * ]
 	 */
 	public function getChange(){
 		$sourceItem = $this->getInventory()->getItem($this->slot);
 
-		if($sourceItem->equals($this->targetItem, true, true, true)){
+		if($sourceItem->deepEquals($this->targetItem, true, true, true)){
 			//This should never happen, somehow a change happened where nothing changed
 			return null;
 
-		}elseif($sourceItem->equals($this->targetItem)){ //Same item, change of count
+		}elseif($sourceItem->deepEquals($this->targetItem)){ //Same item, change of count
 			$item = clone $sourceItem;
 			$countDiff = $this->targetItem->getCount() - $sourceItem->getCount();
 			$item->setCount(abs($countDiff));
