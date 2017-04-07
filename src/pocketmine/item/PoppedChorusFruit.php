@@ -21,11 +21,10 @@
 
 namespace pocketmine\item;
 
-use pocketmine\block\Block;
 
-class WoodenDoor extends Door{
+class PoppedChorusFruit extends Item{
 	public function __construct($meta = 0, $count = 1){
-		$this->block = Block::get(Item::WOODEN_DOOR_BLOCK);
-		parent::__construct(self::WOODEN_DOOR, 0, $count, "Wooden Door");
+		parent::__construct(self::POPPED_CHORUS_FRUIT, 0, $count, "Popped Chorus Fruit");
 	}
+
 }

@@ -10,7 +10,7 @@
  * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -18,21 +18,14 @@
  * @link https://itxtech.org
  *
  */
- 
+
 namespace pocketmine\item;
 
-class RawRabbit extends Food{
+use pocketmine\block\Block;
+
+class Repeater extends Item{
 	public function __construct($meta = 0, $count = 1){
-		parent::__construct(self::RAW_RABBIT, $meta, $count, "Raw Rabbit");
+		$this->block = Block::get(Block::UNPOWERED_REPEATER_BLOCK);
+		parent::__construct(self::REPEATER, $meta, $count, "Repeater");
 	}
-	
-	public function getFoodRestore() : int{
-		return 3;
-	}
-
-	public function getSaturationRestore() : float{
-		return 1.8;
-	}
-
 }
-
