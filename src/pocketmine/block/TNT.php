@@ -1,32 +1,20 @@
 <?php
-/**
- * src/pocketmine/block/TNT.php
- *
- * @package default
- */
-
-
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ * 
  *
 */
 
@@ -35,73 +23,39 @@ namespace pocketmine\block;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\sound\TNTPrimeSound;
-use pocketmine\Player;
-use pocketmine\level\Level;
-use pocketmine\utils\Random;
-use pocketmine\item\FlintSteel;
-use pocketmine\nbt\tag\ListTag;
-use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\FloatTag;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\DoubleTag;
+use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\FloatTag;
+use pocketmine\Player;
+use pocketmine\utils\Random;
 
-class TNT extends Solid implements RedstoneConsumer
-{
+class TNT extends Solid {
 
-    protected $id = self::TNT;
-
-    /**
-     *
-     */
-    public function __construct()
-    {
+	protected $id = self::TNT;
+    
+	public function __construct(){
     }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
+   
+    public function getName(){
         return "TNT";
     }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
+   
+    public function getHardness(){
         return 0;
     }
+  
+    public function canBeActivated() : bool{
+ 		return true;
+ 	}
 
-
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        if ($item->getId() === Item::FLINT_STEEL) {
+    public function onActivate(Item $item, Player $player = null){
+        if ($item->getId() === Item::FLINT_STEEL || $item->getId() === Item::FIRE_CHARGE) {
             $item->useOn($this);
             $this->getLevel()->setBlock($this, new Air(), true);
-
             $mot = (new Random())->nextSignedFloat() * M_PI * 2;
-            $tnt = Entity::createEntity("PrimedTNT", $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4), new CompoundTag("", [
+            $tnt = Entity::createEntity("PrimedTNT", $this->getLevel(), new CompoundTag("", [
                         "Pos" => new ListTag("Pos", [
                                 new DoubleTag("", $this->x + 0.5),
                                 new DoubleTag("", $this->y),
@@ -118,31 +72,10 @@ class TNT extends Solid implements RedstoneConsumer
                             ]),
                         "Fuse" => new ByteTag("Fuse", 80)
                     ]));
-
             $tnt->spawnToAll();
-
             $this->level->addSound(new TNTPrimeSound($this));
-
             return true;
         }
-
         return false;
-    }
-
-
-    /**
-     *
-     * @param unknown $type
-     * @param unknown $power
-     */
-    public function onRedstoneUpdate($type, $power)
-    {
-        if ($type == Level::REDSTONE_UPDATE_BLOCK_UNCHARGE) {
-            return;
-        }
-        if ($type == Level::REDSTONE_UPDATE_BLOCK_CHARGE or $this->isCharged()) {
-            $this->onActivate(new FlintSteel());
-            return;
-        }
     }
 }

@@ -1,254 +1,172 @@
 <?php
-/**
- * src/pocketmine/block/Lever.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author iTX Technologies
+ * @link https://itxtech.org
  *
- *
-*/
+ */
 
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\level\Level;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 
-class Lever extends Flowable implements Redstone, RedstoneSwitch
-{
+class Lever extends Solid{
+	protected $id = self::LEVER;
 
-    protected $id = self::LEVER;
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	public function canBeActivated() : bool {
+		return true;
+	}
 
+	public function getName() : string{
+		return "Lever";
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Lever";
-    }
+	public function onUpdate($type){
+		if($type === Level::BLOCK_UPDATE_NORMAL){
+			$side = $this->getDamage();
+			if($this->isActivated()) $side ^= 0x08;
+			$faces = [
+				5 => 0,
+				6 => 0,
+				3 => 2,
+				1 => 4,
+				4 => 3,
+				2 => 5,
+				0 => 1,
+				7 => 1,
+			];
 
+			$block = $this->getSide($faces[$side]);
+			if($block->isTransparent()){
+				$this->getLevel()->useBreakOn($this);
 
-    /**
-     *
-     * @return unknown
-     */
-    public function isRedstone()
-    {
-        return true;
-    }
+				return Level::BLOCK_UPDATE_NORMAL;
+			}
+		}
+		return false;
+	}
 
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+		if($target->isTransparent() === false){
+			$faces = [
+				3 => 3,
+				2 => 4,
+				4 => 2,
+				5 => 1,
+			];
+			if($face === 0){
+				$to = $player instanceof Player ? $player->getDirection() : 0;
+				$this->meta = ($to % 2 != 1 ? 0 : 7);
+			}elseif($face === 1){
+				$to = $player instanceof Player ? $player->getDirection() : 0;
+				$this->meta = ($to % 2 != 1 ? 6 : 5);
+			}else{
+				$this->meta = $faces[$face];
+			}
+			$this->getLevel()->setBlock($block, $this, true, false);
+			return true;
+		}
+		return false;
+	}
 
+	public function activate(array $ignore = []){
+		parent::activate($ignore);
+		$side = $this->meta;
+		if($this->isActivated()) $side ^= 0x08;
+		$faces = [
+				5 => 0,
+				6 => 0,
+				3 => 2,
+				1 => 4,
+				4 => 3,
+				2 => 5,
+				0 => 1,
+				7 => 1,
+		];
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
+		$block = $this->getSide($faces[$side])->getSide(Vector3::SIDE_UP);
+		if(!$this->equals($block)){
+			$this->activateBlock($block);
+		}
 
+		$this->checkTorchOn($this->getSide($faces[$side]),[$this->getOppositeSide($faces[$side])]);
+	}
 
+	public function deactivate(array $ignore = []){
+		parent::deactivate($ignore);
+		$side = $this->meta;
+		if($this->isActivated()) $side ^= 0x08;
+		$faces = [
+				5 => 0,
+				6 => 0,
+				3 => 2,
+				1 => 4,
+				4 => 3,
+				2 => 5,
+				0 => 1,
+				7 => 1,
+		];
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getPower()
-    {
-        if ($this->meta < 7) {
-            return 0;
-        }
-        return 16;
-    }
+		$block = $this->getSide($faces[$side])->getSide(Vector3::SIDE_UP);
+		if(!$this->equals($block)){
+			$this->deactivateBlock($block);
+		}
 
+		$this->checkTorchOff($this->getSide($faces[$side]),[$this->getOppositeSide($faces[$side])]);
+	}
 
-    /**
-     *
-     * @param unknown $type
-     */
-    public function onUpdate($type)
-    {
-        /*if($type === Level::BLOCK_UPDATE_NORMAL){
-            $below = $this->getSide(0);
-            $faces = [
-                0 => 1,
-                1 => 0,
-                2 => 3,
-                3 => 2,
-                4 => 5,
-                5 => 4,
-            ];
-            if($this->getSide($faces[$this->meta])->isTransparent() === true){
-                $this->getLevel()->useBreakOn($this);
-                return Level::BLOCK_UPDATE_NORMAL;
-            }
-        }
-        return true;*/
-    }
+	public function onActivate(Item $item, Player $player = null){
+		$this->meta ^= 0x08;
+		$this->getLevel()->setBlock($this, $this, true, false);
+		if($this->isActivated()) $this->activate();
+		else $this->deactivate();
+		return true;
+	}
 
+	public function onBreak(Item $item){
+		if($this->isActivated()){
+			$this->meta ^= 0x08;
+			$this->getLevel()->setBlock($this, $this, true, false);
+			$this->deactivate();
+		}
+		$this->getLevel()->setBlock($this, new Air(), true, false);
+	}
 
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        if ($target->isTransparent() === false) {
-            $faces = [
-                3 => 3,
-                2 => 4,
-                4 => 2,
-                5 => 1,
-            ];
-            if ($face === 0) {
-                $to = $player instanceof Player?$player->getDirection():0;
-                $this->meta = ($to ^ 0x01 === 0x01?0:7);
-            } elseif ($face === 1) {
-                $to = $player instanceof Player?$player->getDirection():0;
-                $this->meta = ($to ^ 0x01 === 0x01?6:5);
-            } else {
-                $this->meta = $faces[$face];
-            }
-            $this->getLevel()->setBlock($block, $this, true, true);
+	public function isActivated(Block $from = null){
+		return (($this->meta & 0x08) === 0x08);
+	}
 
-            return true;
-        }
+	public function getHardness() {
+		return 0.5;
+	}
 
-        return false;
-    }
+	public function getResistance(){
+		return 2.5;
+	}
 
-
-
-    /**
-     *
-     * @param unknown $type
-     * @param unknown $power
-     */
-    public function BroadcastRedstoneUpdate($type, $power)
-    {
-        if ($this->meta > 7) {
-            $pb = $this->meta ^ 0x08;
-        } else {
-            $pb = $this->meta;
-        }
-        switch ($pb) {
-        case 4:
-            $pb=3;
-            break;
-        case 2:
-            $pb=5;
-            break;
-        case 3:
-            $pb=2;
-            break;
-        case 1:
-            $pb=4;
-            break;
-        case 0:
-        case 7:
-            $pb = 1;
-            break;
-        case 6:
-        case 5:
-            $pb = 0;
-            break;
-        }
-        for ($side = 0; $side <= 5; $side++) {
-            $around=$this->getSide($side);
-            $this->getLevel()->setRedstoneUpdate($around, Block::REDSTONEDELAY, $type, $power);
-            if ($side == $pb) {
-                for ($side2 = 0; $side2 <= 5; $side2++) {
-                    $around2=$around->getSide($side2);
-                    $this->getLevel()->setRedstoneUpdate($around2, Block::REDSTONEDELAY, $type, $power);
-                }
-            }
-        }
-    }
-
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        if ($this->meta <= 7) {
-            $type = Level::REDSTONE_UPDATE_PLACE;
-        } else {
-            $type = Level::REDSTONE_UPDATE_BREAK;
-        }
-        $this->meta ^= 0x08;
-        $this->getLevel()->setBlock($this, $this, true, false);
-        $this->BroadcastRedstoneUpdate($type, 16);
-    }
-
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        return [[$this->id, 0, 1]];
-    }
-
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function onBreak(Item $item)
-    {
-        $oBreturn = $this->getLevel()->setBlock($this, new Air(), true, true);
-        $this->BroadcastRedstoneUpdate(Level::REDSTONE_UPDATE_BREAK, $this->getPower());
-        return $oBreturn;
-    }
+	public function getDrops(Item $item) : array {
+		return [
+			[$this->id, 0 ,1],
+		];
+	}
 }

@@ -1,32 +1,21 @@
 <?php
-/**
- * src/pocketmine/block/Trapdoor.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  ____            _        _   __  __ _                  __  __ ____  
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ * 
  *
 */
 
@@ -38,210 +27,136 @@ use pocketmine\math\AxisAlignedBB;
 use pocketmine\Player;
 use pocketmine\level\sound\DoorSound;
 
-class Trapdoor extends Transparent implements Redstone
-{
+class Trapdoor extends Transparent{
 
-    protected $id = self::TRAPDOOR;
+	protected $id = self::TRAPDOOR;
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
+	public function getName() : string{
+		return "Wooden Trapdoor";
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Wooden Trapdoor";
-    }
+	public function getHardness() {
+		return 3;
+	}
 
+	public function getResistance(){
+		return 15;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 3;
-    }
+	public function canBeActivated() : bool {
+		return true;
+	}
 
+	protected function recalculateBoundingBox() {
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
+		$damage = $this->getDamage();
 
+		$f = 0.1875;
 
-    /**
-     *
-     * @return unknown
-     */
-    protected function recalculateBoundingBox()
-    {
-        $damage = $this->getDamage();
+		if(($damage & 0x08) > 0){
+			$bb = new AxisAlignedBB(
+				$this->x,
+				$this->y + 1 - $f,
+				$this->z,
+				$this->x + 1,
+				$this->y + 1,
+				$this->z + 1
+			);
+		}else{
+			$bb = new AxisAlignedBB(
+				$this->x,
+				$this->y,
+				$this->z,
+				$this->x + 1,
+				$this->y + $f,
+				$this->z + 1
+			);
+		}
 
-        $f = 0.1875;
+		if(($damage & 0x04) > 0){
+			if(($damage & 0x03) === 0){
+				$bb->setBounds(
+					$this->x,
+					$this->y,
+					$this->z + 1 - $f,
+					$this->x + 1,
+					$this->y + 1,
+					$this->z + 1
+				);
+			}elseif(($damage & 0x03) === 1){
+				$bb->setBounds(
+					$this->x,
+					$this->y,
+					$this->z,
+					$this->x + 1,
+					$this->y + 1,
+					$this->z + $f
+				);
+			}
+			if(($damage & 0x03) === 2){
+				$bb->setBounds(
+					$this->x + 1 - $f,
+					$this->y,
+					$this->z,
+					$this->x + 1,
+					$this->y + 1,
+					$this->z + 1
+				);
+			}
+			if(($damage & 0x03) === 3){
+				$bb->setBounds(
+					$this->x,
+					$this->y,
+					$this->z,
+					$this->x + $f,
+					$this->y + 1,
+					$this->z + 1
+				);
+			}
+		}
 
-        if (($damage & 0x08) > 0) {
-            $bb = new AxisAlignedBB(
-                $this->x,
-                $this->y + $f,
-                $this->z,
-                $this->x + 1,
-                $this->y + 1,
-                $this->z + 1
-            );
-        } else {
-            $bb = new AxisAlignedBB(
-                $this->x,
-                $this->y,
-                $this->z,
-                $this->x + 1,
-                $this->y + $f,
-                $this->z + 1
-            );
-        }
+		return $bb;
+	}
 
-        if (($damage & 0x04) > 0) {
-            if (($damage & 0x03) === 0) {
-                $bb->setBounds(
-                    $this->x,
-                    $this->y,
-                    $this->z + $f,
-                    $this->x + 1,
-                    $this->y + 1,
-                    $this->z + 1
-                );
-            } elseif (($damage & 0x03) === 1) {
-                $bb->setBounds(
-                    $this->x,
-                    $this->y,
-                    $this->z,
-                    $this->x + 1,
-                    $this->y + 1,
-                    $this->z + $f
-                );
-            }
-            if (($damage & 0x03) === 2) {
-                $bb->setBounds(
-                    $this->x + $f,
-                    $this->y,
-                    $this->z,
-                    $this->x + 1,
-                    $this->y + 1,
-                    $this->z + 1
-                );
-            }
-            if (($damage & 0x03) === 3) {
-                $bb->setBounds(
-                    $this->x,
-                    $this->y,
-                    $this->z,
-                    $this->x + $f,
-                    $this->y + 1,
-                    $this->z + 1
-                );
-            }
-        }
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+		$directions = [
+			0 => 1,
+			1 => 3,
+			2 => 0,
+			3 => 2
+		];
+		if($player !== null){
+			$this->meta = $directions[$player->getDirection() & 0x03];
+		}
+		if(($fy > 0.5 and $face !== self::SIDE_UP) or $face === self::SIDE_DOWN){
+			$this->meta |= 0b00000100; //top half of block
+		}
+		$this->getLevel()->setBlock($block, $this, true, true);
+		return true;
+	}
 
-        return $bb;
-    }
+	public function getDrops(Item $item) : array {
+		return [
+			[$this->id, 0, 1],
+		];
+	}
 
+	public function isOpened(){
+		return (($this->meta & 0b00001000) === 0);
+	}
 
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        if (($target->isTransparent() === false or $target->getId() === self::SLAB) and $face !== 0 and $face !== 1) {
-            $faces = [
-                2 => 3,
-                3 => 2,
-                4 => 1,
-                5 => 0,
-            ];
-            $this->meta = $faces[$face] & 0x03;
-            if ($fy > 0.5) {
-                $this->meta |= 0x08;
-            }
-            $this->getLevel()->setBlock($block, $this, true, true);
-            return true;
-        }
+	public function onActivate(Item $item, Player $player = \null){
+		$this->meta ^= 0b00001000;
+		$this->getLevel()->setBlock($this, $this, true);
+		$this->level->addSound(new DoorSound($this));
+		return true;
+	}
 
-        return false;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        return [
-            [$this->id, 0, 1],
-        ];
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        $this->meta |= 0x04;
-        $this->getLevel()->setBlock($this, $this, true);
-        $this->getLevel()->addSound(new DoorSound($this));
-        return true;
-    }
-
-
-
-    /**
-     *
-     * @param unknown $type
-     * @param unknown $power
-     */
-    public function onRedstoneUpdate($type, $power)
-    {
-        if ($this->isActivitedByRedstone() and $this->meta < 4) {
-            $this->meta = $this->meta+4;
-            $this->getLevel()->setBlock($this, $this);
-            $this->getLevel()->addSound(new DoorSound($this));
-        }
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getToolType()
-    {
-        return Tool::TYPE_AXE;
-    }
+	public function getToolType(){
+		return Tool::TYPE_AXE;
+	}
 }

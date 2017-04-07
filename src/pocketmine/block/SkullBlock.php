@@ -1,205 +1,139 @@
 <?php
-/**
- * src/pocketmine/block/SkullBlock.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *    _______                                _
+ *   |__   __|                              | |
+ *      | | ___  ___ ___  ___ _ __ __ _  ___| |_
+ *      | |/ _ \/ __/ __|/ _ \  __/ _` |/ __| __|
+ *      | |  __/\__ \__ \  __/ | | (_| | (__| |_
+ *      |_|\___||___/___/\___|_|  \__,_|\___|\__|
  *
- * This program is a third party build by ImagicalMine.
  *
- * PocketMine is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
- *
- *
-*/
-/*
- * THIS IS COPIED FROM THE PLUGIN FlowerPot MADE BY @beito123!!
- * https://github.com/beito123/PocketMine-MP-Plugins/blob/master/test%2FFlowerPot%2Fsrc%2Fbeito%2FFlowerPot%2Fomake%2FSkull.php
+ * @author Tessetact Team
+ * @link http://www.github.com/TesseractTeam/Tesseract
+ * 
  *
  */
 
 namespace pocketmine\block;
-
+ 
 use pocketmine\item\Item;
-use pocketmine\item\Tool;
-use pocketmine\Player;
-use pocketmine\tile\Tile;
+
 use pocketmine\math\AxisAlignedBB;
-use pocketmine\tile\Skull;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\IntTag;
+use pocketmine\nbt\tag\StringTag;
+use pocketmine\Player;
+use pocketmine\tile\Skull as SkullTile;
 
-class SkullBlock extends Transparent
-{
+use pocketmine\tile\Tile;
 
-    protected $id = self::SKULL_BLOCK;
-
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 1;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function isSolid()
-    {
-        return false;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getBoundingBox()
-    {
-        return new AxisAlignedBB(
-            $this->x - 0.75,
-            $this->y - 0.5,
-            $this->z - 0.75,
-            $this->x + 0.75,
-            $this->y + 0.5,
-            $this->z + 0.75
-        );
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        $down = $this->getSide(0);
-        if ($face !== 0 && $fy > 0.5 && $target->getId() !== self::SKULL_BLOCK && !$down instanceof SkullBlock) {
-            $this->getLevel()->setBlock($block, Block::get(Block::SKULL_BLOCK, 0), true, true);
-            if ($face === 1) {
-                $rot = new ByteTag("Rot", floor(($player->yaw * 16 / 360) + 0.5) & 0x0F);
-            } else {
-                $rot = new ByteTag("Rot", 0);
-            }
-            $nbt = new CompoundTag("", [
-                    new StringTag("id", Tile::SKULL),
-                    new IntTag("x", $block->x),
-                    new IntTag("y", $block->y),
-                    new IntTag("z", $block->z),
-                    new ByteTag("SkullType", $item->getDamage()),
-                    $rot
-                ]);
-
-            $chunk = $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4);
-            $pot = Tile::createTile("Skull", $chunk, $nbt);
-            $this->getLevel()->setBlock($block, Block::get(Block::SKULL_BLOCK, $face), true, true);
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getResistance()
-    {
-        return 5;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        static $names = [
-            0 => "Skeleton Skull",
-            1 => "Wither Skeleton Skull",
-            2 => "Zombie Head",
-            3 => "Head",
-            4 => "Creeper Head"
-        ];
-        return $names[$this->meta & 0x04];
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getToolType()
-    {
-        return Tool::TYPE_PICKAXE;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function onBreak(Item $item)
-    {
-        $this->getLevel()->setBlock($this, new Air(), true, true, true);
-        return true;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @return unknown
-     */
-    public function getDrops(Item $item)
-    {
-        if (($tile = $this->getLevel()->getTile($this)) instanceof Skull) {
-            return [[Item::SKULL, $tile->getSkullType(), 1]];
-        } else {
-            return [[Item::SKULL, 0, 1]];
-        }
-    }
+class SkullBlock extends Flowable {
+	
+	protected $id = self::SKULL_BLOCK;
+	
+	public function __construct($meta = 0) {
+		$this->meta = $meta;
+	}
+	
+	public function getHardness() {
+		return 1;
+	}
+	
+	public function getName() : bool{
+		return "Mob Head";
+	}
+	
+	protected function recalculateBoundingBox() {
+		$x1 = 0;
+		$x2 = 0;
+		$z1 = 0;
+		$z2 = 0;
+		if ($this->meta === 0 || $this->meta === 1) {
+			return new AxisAlignedBB(
+				$this->x + 0.25,
+				$this->y,
+				$this->z + 0.25,
+				$this->x + 0.75,
+				$this->y + 0.5,
+				$this->z + 0.75
+			);
+		} elseif ($this->meta === 2) {
+			$x1 = 0.25;
+			$x2 = 0.75;
+			$z1 = 0;
+			$z2 = 0.5;
+		} elseif ($this->meta === 3) {
+			$x1 = 0.5;
+			$x2 = 1;
+			$z1 = 0.25;
+			$z2 = 0.75;
+		} elseif ($this->meta === 4) {
+			$x1 = 0.25;
+			$x2 = 0.75;
+			$z1 = 0.5;
+			$z2 = 1;
+		} elseif ($this->meta === 5) {
+			$x1 = 0;
+			$x2 = 0.5;
+			$z1 = 0.25;
+			$z2 = 0.75;
+		}
+		return new AxisAlignedBB(
+			$this->x + $x1,
+			$this->y + 0.25,
+			$this->z + $z1,
+			$this->x + $x2,
+			$this->y + 0.75,
+			$this->z + $z2
+		);
+	}
+	
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null) {
+		if ($face !== 0) {
+			$this->meta = $face;
+			if ($face === 1) {
+				$rot = floor(($player->yaw * 16 / 360) + 0.5) & 0x0F;
+			} else {
+				$rot = 0;
+			}
+			$this->getLevel()->setBlock($block, $this, true);
+			$moveMouth = false;
+			if($item->getDamage() === SkullTile::TYPE_DRAGON){
+				if(in_array($target->getId(), [Block::REDSTONE_TORCH, Block::REDSTONE_BLOCK])) $moveMouth = true; //Temp-hacking Dragon Head Mouth Move
+			}
+			$nbt = new CompoundTag("", [
+				new StringTag("id", Tile::SKULL),
+				new ByteTag("SkullType", $item->getDamage()),
+				new ByteTag("Rot", $rot),
+				new ByteTag("MouthMoving", (bool)$moveMouth),
+				new IntTag("x", (int)$this->x),
+				new IntTag("y", (int)$this->y),
+				new IntTag("z", (int)$this->z)
+			]);
+			if ($item->hasCustomName()) {
+				$nbt->CustomName = new StringTag("CustomName", $item->getCustomName());
+			}
+			Tile::createTile("Skull", $this->getLevel(), $nbt);
+			return true;
+		}
+		return false;
+	}
+	
+	public function getDrops(Item $item) : array{
+		$tile = $this->level->getTile($this);
+		if($tile instanceof SkullTile){
+			return [
+				[Item::MOB_HEAD, $tile->getType(), 1]
+			];
+		}
+		return [];
+	}
 }

@@ -1,199 +1,149 @@
 <?php
-/**
- * src/pocketmine/block/Noteblock.php
- *
- * @package default
- */
-
 
 /*
  *
- *  _                       _           _ __  __ _
- * (_)                     (_)         | |  \/  (_)
- *  _ _ __ ___   __ _  __ _ _  ___ __ _| | \  / |_ _ __   ___
- * | | '_ ` _ \ / _` |/ _` | |/ __/ _` | | |\/| | | '_ \ / _ \
- * | | | | | | | (_| | (_| | | (_| (_| | | |  | | | | | |  __/
- * |_|_| |_| |_|\__,_|\__, |_|\___\__,_|_|_|  |_|_|_| |_|\___|
- *                     __/ |
- *                    |___/
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
- * This program is a third party build by ImagicalMine.
- *
- * PocketMine is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author ImagicalMine Team
- * @link http://forums.imagicalcorp.ml/
+ * @author iTX Technologies
+ * @link https://itxtech.org
  *
- * OpenGenisys Project
  */
+
 namespace pocketmine\block;
 
 use pocketmine\item\Tool;
 use pocketmine\item\Item;
 use pocketmine\level\sound\NoteblockSound;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
-use pocketmine\Server;
 
-class Noteblock extends Solid implements RedstoneConsumer
-{
-    
-    protected $id = self::NOTEBLOCK;
-    protected $downSideId = null;
+class Noteblock extends Solid{
+	protected $id = self::NOTEBLOCK;
 
-    /**
-     *
-     * @param unknown $meta (optional)
-     */
-    public function __construct($meta = 0)
-    {
-        $this->meta = $meta;
-    }
+	public function __construct($meta = 0){
+		$this->meta = $meta;
+	}
 
+	public function getHardness(){
+		return 0.8;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getHardness()
-    {
-        return 0.8;
-    }
+	public function getResistance(){
+		return 4;
+	}
 
+	public function getToolType(){
+		return Tool::TYPE_AXE;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getResistance()
-    {
-        return 4;
-    }
+	public function canBeActivated() : bool{
+		return true;
+	}
 
+	public function getStrength(){
+		if($this->meta < 24) $this->meta++;
+		else $this->meta = 0;
+		$this->getLevel()->setBlock($this, $this);
+		return $this->meta * 1;
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function getToolType()
-    {
-        return Tool::TYPE_AXE;
-    }
+	public function getInstrument(){
+		$below = $this->getSide(Vector3::SIDE_DOWN);
+		switch($below->getId()){
+			case Block::WOOD:
+			case Block::WOOD2:
+			case Block::WOODEN_PLANK:
+			case Block::WOODEN_SLABS:
+			case Block::DOUBLE_WOOD_SLABS:
+			case Block::OAK_WOODEN_STAIRS:
+			case Block::SPRUCE_WOODEN_STAIRS:
+			case Block::BIRCH_WOODEN_STAIRS:
+			case Block::JUNGLE_WOODEN_STAIRS:
+			case Block::ACACIA_WOODEN_STAIRS:
+			case Block::DARK_OAK_WOODEN_STAIRS:
+			case Block::FENCE:
+			case Block::FENCE_GATE:
+			case Block::FENCE_GATE_SPRUCE:
+			case Block::FENCE_GATE_BIRCH:
+			case Block::FENCE_GATE_JUNGLE:
+			case Block::FENCE_GATE_DARK_OAK:
+			case Block::FENCE_GATE_ACACIA:
+			case Block::SPRUCE_WOOD_STAIRS:
+			case Block::BOOKSHELF:
+			case Block::CHEST:
+			case Block::CRAFTING_TABLE:
+			case Block::SIGN_POST:
+			case Block::WALL_SIGN:
+			case Block::DOOR_BLOCK:
+			case Block::NOTEBLOCK:
+				return NoteblockSound::INSTRUMENT_BASS;
+			case Block::SAND:
+			case Block::SOUL_SAND:
+				return NoteblockSound::INSTRUMENT_TABOUR;
+			case Block::GLASS:
+			case Block::GLASS_PANE:
+				return NoteblockSound::INSTRUMENT_CLICK;
+			case Block::STONE:
+			case Block::COBBLESTONE:
+			case Block::SANDSTONE:
+			case Block::MOSS_STONE:
+			case Block::BRICKS:
+			case Block::STONE_BRICK:
+			case Block::NETHER_BRICKS:
+			case Block::QUARTZ_BLOCK:
+			case Block::SLAB:
+			case Block::COBBLESTONE_STAIRS:
+			case Block::BRICK_STAIRS:
+			case Block::STONE_BRICK_STAIRS:
+			case Block::NETHER_BRICKS_STAIRS:
+			case Block::SANDSTONE_STAIRS:
+			case Block::QUARTZ_STAIRS:
+			case Block::COBBLESTONE_WALL:
+			case Block::NETHER_BRICK_FENCE:
+			case Block::BEDROCK:
+			case Block::GOLD_ORE:
+			case Block::IRON_ORE:
+			case Block::COAL_ORE:
+			case Block::LAPIS_ORE:
+			case Block::DIAMOND_ORE:
+			case Block::REDSTONE_ORE:
+			case Block::GLOWING_REDSTONE_ORE:
+			case Block::EMERALD_ORE:
+			case Block::FURNACE:
+			case Block::BURNING_FURNACE:
+			case Block::OBSIDIAN:
+			case Block::MONSTER_SPAWNER:
+			case Block::NETHERRACK:
+			case Block::ENCHANTING_TABLE:
+			case Block::END_STONE:
+			case Block::STAINED_CLAY:
+			case Block::COAL_BLOCK:
+				return NoteblockSound::INSTRUMENT_BASS_DRUM;
+		}
+		return NoteblockSound::INSTRUMENT_PIANO;
+	}
 
+	public function onActivate(Item $item, Player $player = null){
+		$up = $this->getSide(Vector3::SIDE_UP);
+		if($up->getId() == 0){
+			$this->getLevel()->addSound(new NoteblockSound($this, $this->getInstrument(), $this->getStrength()));
+			return true;
+		}else{
+			return false;
+		}
+	}
 
-    /**
-     *
-     * @return unknown
-     */
-    public function canBeActivated()
-    {
-        return true;
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getStrength()
-    {
-        if ($this->meta < 24) {
-            $this->meta ++;
-        } else {
-            $this->meta = 0;
-        }
-        $this->getLevel()->setBlock($this, $this);
-        return $this->meta * 1;
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function onActivate(Item $item, Player $player = null)
-    {
-        switch ($this->downSideId) {
-            case self::GLASS:
-            case self::GLOWSTONE:
-                $this->getLevel()->addSound(new NoteblockSound($this, NoteblockSound::INSTRUMENT_CLICK, $this->getStrength()));
-                break;
-            case self::SAND:
-            case self::GRAVEL:
-                $this->getLevel()->addSound(new NoteblockSound($this, NoteblockSound::INSTRUMENT_TABOUR, $this->getStrength()));
-                break;
-            case self::WOOD:
-                $this->getLevel()->addSound(new NoteblockSound($this, NoteblockSound::INSTRUMENT_BASS, $this->getStrength()));
-                break;
-            case self::STONE:
-                $this->getLevel()->addSound(new NoteblockSound($this, NoteblockSound::INSTRUMENT_BASS_DRUM, $this->getStrength()));
-                break;
-            default:
-                $this->getLevel()->addSound(new NoteblockSound($this, NoteblockSound::INSTRUMENT_PIANO, $this->getStrength()));
-                break;
-        }
-        return true;
-    }
-
-
-    /**
-     *
-     * @param unknown $type
-     * @return unknown
-     */
-    public function onUpdate($type)
-    {
-        $this->downSideId = $this->getSide(0)->getId();
-        return parent::onUpdate($type);
-    }
-
-
-    /**
-     *
-     * @param Item    $item
-     * @param Block   $block
-     * @param Block   $target
-     * @param unknown $face
-     * @param unknown $fx
-     * @param unknown $fy
-     * @param unknown $fz
-     * @param Player  $player (optional)
-     * @return unknown
-     */
-    public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null)
-    {
-        $this->downSideId = $this->getSide(0)->getId();
-        return parent::place($item, $block, $target, $face, $fx, $fy, $fz, $player);
-    }
-
-
-    /**
-     *
-     * @return unknown
-     */
-    public function getName()
-    {
-        return "Noteblock";
-    }
-
-
-    /**
-     * overriding Block::onRedstoneUpdate
-     * is causing memory leak if noteblock is activated
-     *
-     * @param unknown $type
-     * @param unknown $power
-     * @return unknown
-     */
-    public function onRedstoneUpdate($type, $power)
-    {
-        $this->server = Server::getInstance();
-        $this->getLevel()->addSound(new NoteblockSound($this, NoteblockSound::getRandomSound(), $this->getStrength()));
-
-        return true;
-    }
+	public function getName() : string{
+		return "Noteblock";
+	}
 }
