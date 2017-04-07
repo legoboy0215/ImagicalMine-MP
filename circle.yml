@@ -23,6 +23,6 @@ dependencies:
 test:
  override:
 #   - ls -R
-    - cp -rv ./plugins/DevTools/ $CIRCLE_ARTIFACTS
+  #  - cp -rv ./plugins/DevTools/ $CIRCLE_ARTIFACTS
     - bin/php7/bin/php ci.php
     - cp -R plugins/DevTools/* $CIRCLE_ARTIFACTS
